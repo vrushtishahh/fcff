@@ -1,0 +1,6 @@
+{
+  "name": "Browser C Compiler",
+  "description": "In-browser C code editor and execution engine with support for printf, scanf, syntax error reporting, and infinite loop timeout.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
