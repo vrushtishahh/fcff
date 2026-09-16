@@ -1,6 +1,6 @@
 {
-  "name": "Browser C Compiler",
-  "description": "In-browser C code editor and execution engine with support for printf, scanf, syntax error reporting, and infinite loop timeout.",
+  "name": "Fastest Coder First",
+  "description": "Offline competition coding platform for 21 teams across Round 1, Round 2, and Round 3 with power cards, timers, and local browser C execution.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }
