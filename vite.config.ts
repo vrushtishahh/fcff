@@ -11,6 +11,7 @@ export default defineConfig(() => {
         '@': path.resolve(__dirname, '.'),
         'printf': path.resolve(__dirname, './src/shims/printf.cjs'),
         'stream': path.resolve(__dirname, './src/shims/stream.cjs'),
+        'util': path.resolve(__dirname, './src/shims/util.cjs'),
       },
     },
     server: {
