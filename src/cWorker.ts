@@ -1,3 +1,38 @@
+// Ensure basic Node.js environment shims in Web Worker
+if (typeof (self as any).process === 'undefined') {
+  (self as any).process = {
+    stdout: { write: () => {} },
+    stderr: { write: () => {} },
+    env: {}
+  };
+}
+
+// Global unhandled error handlers for the worker
+self.onerror = (msg, url, line, col, error) => {
+  const errorObj = {
+    type: 'error',
+    name: error?.name || 'WorkerGlobalError',
+    message: String(msg || error?.message || 'Uncaught error in worker script'),
+    stack: error?.stack || `Location: ${url || 'worker'}:${line}:${col}`,
+    error: `Worker Error:\nName: ${error?.name || 'WorkerGlobalError'}\nMessage: ${String(msg || error?.message || 'Uncaught error in worker script')}\nStack: ${error?.stack || `Location: ${url || 'worker'}:${line}:${col}`}`
+  };
+  console.error('[Worker Global Uncaught Error]', errorObj);
+  self.postMessage(errorObj);
+};
+
+self.onunhandledrejection = (event: PromiseRejectionEvent) => {
+  const reason = event.reason;
+  const errorObj = {
+    type: 'error',
+    name: reason?.name || 'UnhandledPromiseRejection',
+    message: String(reason?.message || reason || 'Unhandled promise rejection'),
+    stack: reason?.stack || 'No stack trace available',
+    error: `Worker Error:\nName: ${reason?.name || 'UnhandledPromiseRejection'}\nMessage: ${String(reason?.message || reason || 'Unhandled promise rejection')}\nStack: ${reason?.stack || 'No stack trace available'}`
+  };
+  console.error('[Worker Unhandled Promise Rejection]', errorObj);
+  self.postMessage(errorObj);
+};
+
 // @ts-ignore
 import * as JSCPPModule from 'JSCPP';
 // @ts-ignore
@@ -46,9 +81,13 @@ self.onmessage = (e: MessageEvent) => {
   try {
     const runtime = getJSCPPRuntime();
     if (!runtime || typeof runtime.run !== 'function') {
-      throw new Error(
-        `JSCPP execution engine could not be resolved. Please verify the build configuration.`
+      const defaultKeys = Object.keys(JSCPPDefault || {});
+      const moduleKeys = Object.keys(JSCPPModule || {});
+      const err = new Error(
+        `JSCPP execution engine could not be resolved.\nDefault export keys: [${defaultKeys.join(', ')}]\nModule keys: [${moduleKeys.join(', ')}]`
       );
+      err.name = 'JSCPPResolutionError';
+      throw err;
     }
 
     let currentInput = input != null ? String(input) : '';
@@ -64,7 +103,7 @@ self.onmessage = (e: MessageEvent) => {
           return buf;
         }
       },
-      maxTimeout: 10000 // internal safety guard in addition to worker termination
+      maxTimeout: 10000 // internal safety guard
     };
 
     const exitCode = runtime.run(code, input != null ? String(input) : '', config);
@@ -74,10 +113,25 @@ self.onmessage = (e: MessageEvent) => {
       exitCode: typeof exitCode === 'number' ? exitCode : 0
     });
   } catch (err: any) {
+    const errorName = err?.name || 'RuntimeError';
+    const errorMessage = err?.message || String(err);
+    const errorStack = err?.stack || 'No stack trace available';
+
+    const formattedDiagnostic = `Worker Error:\nName: ${errorName}\nMessage: ${errorMessage}\nStack: ${errorStack}`;
+
+    console.error('[Worker Execution Catch]', {
+      name: errorName,
+      message: errorMessage,
+      stack: errorStack
+    });
+
     self.postMessage({
       type: 'error',
       output,
-      error: err?.message || String(err)
+      name: errorName,
+      message: errorMessage,
+      stack: errorStack,
+      error: formattedDiagnostic
     });
   }
 };
