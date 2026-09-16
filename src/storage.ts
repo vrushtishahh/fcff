@@ -8,7 +8,8 @@ import {
 } from './types';
 import { ROUND_SPECS } from './competitionData';
 
-const STORAGE_KEY = 'fcf_competition_state_v1';
+const STORAGE_KEY = 'fcf_competition_state_v2';
+const LEGACY_STORAGE_KEY = 'fcf_competition_state_v1';
 
 export function getInitialTimerState(roundId: RoundId): RoundTimerState {
   return {
@@ -72,17 +73,38 @@ export function getInitialState(): CompetitionState {
 
 export function loadCompetitionState(): CompetitionState {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
+    let raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) {
+      raw = localStorage.getItem(LEGACY_STORAGE_KEY);
+    }
     if (!raw) return getInitialState();
     const parsed = JSON.parse(raw);
     const initial = getInitialState();
+
+    const editorCode = { ...initial.editorCode, ...(parsed.editorCode || {}) };
+    // Auto-update Round 1B if still containing legacy RLE code
+    if (editorCode.round1_b && (editorCode.round1_b.includes('RLE') || editorCode.round1_b.includes('strlen') || editorCode.round1_b.includes('str[105]'))) {
+      editorCode.round1_b = initial.editorCode.round1_b;
+    }
+    // Auto-update Round 3 if still containing legacy Grid Vault code
+    if (editorCode.round3 && (editorCode.round3.includes('grid[MAX]') || editorCode.round3.includes('dp[MAX]') || editorCode.round3.includes('energy cost'))) {
+      editorCode.round3 = initial.editorCode.round3;
+    }
+
+    const standardInput = { ...initial.standardInput, ...(parsed.standardInput || {}) };
+    if (standardInput.round1_b && standardInput.round1_b.includes('AAABBBCCDAA')) {
+      standardInput.round1_b = initial.standardInput.round1_b;
+    }
+    if (standardInput.round3 && (standardInput.round3.includes('3 3') || standardInput.round3.includes('1 3 1'))) {
+      standardInput.round3 = initial.standardInput.round3;
+    }
 
     return {
       selectedTeam: parsed.selectedTeam || null,
       activeRoundId: parsed.activeRoundId || 'round1_a',
       timers: { ...initial.timers, ...(parsed.timers || {}) },
-      editorCode: { ...initial.editorCode, ...(parsed.editorCode || {}) },
-      standardInput: { ...initial.standardInput, ...(parsed.standardInput || {}) },
+      editorCode,
+      standardInput,
       attempts: { ...initial.attempts, ...(parsed.attempts || {}) },
       submissions: Array.isArray(parsed.submissions) ? parsed.submissions : [],
       powerCardEffects: { ...initial.powerCardEffects, ...(parsed.powerCardEffects || {}) }

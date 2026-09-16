@@ -99,70 +99,71 @@ int main() {
   round1_b: {
     id: 'round1_b',
     roundTitle: 'ROUND 1',
-    activityTitle: 'Activity B: Run-Length Encoding',
+    activityTitle: 'Activity B: Check Even/Odd Number',
     durationMinutes: 15,
     maxPoints: 50,
-    description: `Implement Run-Length Encoding (RLE) in C.
-Run-length encoding is a form of lossless data compression in which consecutive data values (runs) are stored as a single count followed by the character.
+    description: `Check Even/Odd Number Using C Programming
 
-Input: A single non-empty string consisting of alphanumeric characters.
-Output: The compressed string where each consecutive sequence of identical characters is represented by its count followed by the character.
+Problem Statement:
+Write a C program to check whether a given integer is Even or Odd.
+
+Input:
+A single integer N.
+
+Output:
+Print "Even" if N is even.
+Print "Odd" if N is odd.
 
 Example:
-Input: AAABBBCCDAA
-Output: 3A3B2C1D2A`,
+Input: 10
+Output: Even
+
+Input: 7
+Output: Odd`,
     constraints: [
-      '1 <= Length of string <= 1000',
-      'Characters are uppercase letters A-Z, lowercase a-z, or digits 0-9',
-      'Case sensitive: "a" and "A" are distinct characters',
+      'Input: Single integer N via standard input',
+      'Output matches exact case: "Even" or "Odd"',
       'Time Limit: 2.5 seconds per test case'
     ],
-    sampleInput: `AAABBBCCDAA`,
-    sampleOutput: `3A3B2C1D2A`,
-    explanation: '3 As, followed by 3 Bs, 2 Cs, 1 D, and 2 As.',
+    sampleInput: `10`,
+    sampleOutput: `Even`,
+    explanation: '10 is divisible by 2 with no remainder, so it is Even.',
     starterCode: `#include <stdio.h>
-#include <string.h>
 
 int main() {
-    char str[105];
-    if (scanf("%s", str) != 1) return 0;
+    int n;
+    if (scanf("%d", &n) != 1) return 0;
     
-    int len = strlen(str);
-    if (len == 0) return 0;
+    // Write your code here to check whether n is Even or Odd:
     
-    int count = 1;
-    for (int i = 1; i <= len; i++) {
-        if (i < len && str[i] == str[i-1]) {
-            count++;
-        } else {
-            printf("%d%c", count, str[i-1]);
-            count = 1;
-        }
-    }
-    printf("\\n");
     return 0;
 }
 `,
     testCases: [
       {
-        input: `AAABBBCCDAA`,
-        expectedOutput: `3A3B2C1D2A\n`,
-        description: 'Sample 1: Standard uppercase sequence'
+        input: `10`,
+        expectedOutput: `Even\n`,
+        description: 'Sample 1: Even integer (10)'
       },
       {
-        input: `WWWWWWWBWWWWBBBWWWWWWWBWWWWW`,
-        expectedOutput: `7W1B4W3B7W1B5W\n`,
-        description: 'Test 2: Multiple runs'
+        input: `7`,
+        expectedOutput: `Odd\n`,
+        description: 'Sample 2: Odd integer (7)'
       },
       {
-        input: `XYZ`,
-        expectedOutput: `1X1Y1Z\n`,
-        description: 'Test 3: Single occurrence characters'
+        input: `0`,
+        expectedOutput: `Even\n`,
+        description: 'Test 3: Zero is Even (0)'
       },
       {
-        input: `aabbbcccc`,
-        expectedOutput: `2a3b4c\n`,
-        description: 'Test 4: Lowercase characters'
+        input: `42`,
+        expectedOutput: `Even\n`,
+        description: 'Test 4: Even integer (42)'
+      },
+      {
+        input: `99`,
+        expectedOutput: `Odd\n`,
+        description: 'Test 5: Odd integer (99)'
       }
     ]
   },
@@ -275,90 +276,74 @@ int main() {
   round3: {
     id: 'round3',
     roundTitle: 'ROUND 3',
-    activityTitle: 'Final Coding Race (Grid Vault Escape)',
+    activityTitle: 'Final Coding Race: Print the Given Star Pattern',
     durationMinutes: 30,
     maxPoints: 150,
-    description: `FINAL CODING RACE: The Vault Grid Escape.
-You are trapped at the top-left corner (0, 0) of an R x C grid vault. Each cell has an energy cost.
-You can only move RIGHT or DOWN towards the exit at (R - 1, C - 1).
+    description: `FINAL CODING RACE: Print the Given Star Pattern
 
-Find the MINIMUM total energy path cost to reach (R - 1, C - 1) from (0, 0), inclusive of start and finish cells.
-Output a single integer representing the minimum energy path cost.
+Write a C program to display the exact star pattern shown below using nested loops.
+First team to submit a correct solution wins the race!
 
-POWER CARDS:
-Active power cards can be deployed during this round! Keep your code clean, efficient, and resilient!`,
+REFERENCE STAR PATTERN:
+    *
+   ***
+  *****
+ *******
+*********
+ *******
+  *****
+   ***
+    *
+
+PATTERN STRUCTURE (N = 5 rows for upper half, 9 rows total):
+Row 1 (4 leading spaces):     *
+Row 2 (3 leading spaces):    ***
+Row 3 (2 leading spaces):   *****
+Row 4 (1 leading space) :  *******
+Row 5 (0 leading spaces): *********
+Row 6 (1 leading space) :  *******
+Row 7 (2 leading spaces):   *****
+Row 8 (3 leading spaces):    ***
+Row 9 (4 leading spaces):     *
+
+INPUT INSTRUCTIONS:
+- You may read N from standard input (where N = 5 for this pattern), OR use loops to generate the 5-row diamond directly.
+- Both methods are fully accepted!
+- Standard test input supplies: 5`,
     constraints: [
-      '1 <= R, C <= 10',
-      '0 <= energy cost <= 1000',
-      'Allowed moves: only RIGHT or DOWN',
+      'Students must use loops (for / while) to generate the pattern',
+      'Total pattern height is 9 rows (upper pyramid has N = 5 rows)',
+      'Output matches the exact row alignment and star counts',
       'Time Limit: 2.5 seconds per test case'
     ],
-    sampleInput: `3 3
-1 3 1
-1 5 1
-4 2 1`,
-    sampleOutput: `7`,
-    explanation: 'The path 1 -> 3 -> 1 -> 1 -> 1 has total energy cost 1 + 3 + 1 + 1 + 1 = 7, which is the minimum.',
+    sampleInput: `5`,
+    sampleOutput: `    *
+   ***
+  *****
+ *******
+*********
+ *******
+  *****
+   ***
+    *`,
+    explanation: 'Symmetric diamond pattern with N = 5 rows in the upper half and 4 rows in the lower half.',
     starterCode: `#include <stdio.h>
 
-#define MAX 105
-
-int min(int a, int b) {
-    return (a < b) ? a : b;
-}
-
 int main() {
-    int R, C;
-    if (scanf("%d %d", &R, &C) != 2) return 0;
+    int n = 5;
+    // Optional: read n from input:
+    // scanf("%d", &n);
+
+    // Write your nested loop logic below to print the star pattern:
     
-    int grid[MAX];
-    int dp[MAX];
-    
-    for (int i = 0; i < R * C; i++) {
-        int v;
-        scanf("%d", &v);
-        grid[i] = v;
-    }
-    
-    dp[0] = grid[0];
-    
-    for (int j = 1; j < C; j++) {
-        dp[j] = dp[j-1] + grid[j];
-    }
-    
-    for (int i = 1; i < R; i++) {
-        dp[i * C] = dp[(i-1) * C] + grid[i * C];
-        for (int j = 1; j < C; j++) {
-            int from_up = dp[(i-1) * C + j];
-            int from_left = dp[i * C + (j-1)];
-            dp[i * C + j] = grid[i * C + j] + min(from_up, from_left);
-        }
-    }
-    
-    printf("%d\\n", dp[R * C - 1]);
     return 0;
 }
 `,
     testCases: [
       {
-        input: `3 3\n1 3 1\n1 5 1\n4 2 1`,
-        expectedOutput: `7\n`,
-        description: 'Sample 1: 3x3 grid'
-      },
-      {
-        input: `2 3\n1 2 3\n4 5 6`,
-        expectedOutput: `12\n`,
-        description: 'Test 2: 2x3 grid (1->2->3->6 = 12)'
-      },
-      {
-        input: `1 1\n42`,
-        expectedOutput: `42\n`,
-        description: 'Test 3: 1x1 grid'
-      },
-      {
-        input: `4 4\n2 1 3 4\n5 1 1 2\n9 8 1 3\n4 2 1 1`,
-        expectedOutput: `12\n`,
-        description: 'Test 4: 4x4 maze'
+        input: `5`,
+        expectedOutput: `    *\n   ***\n  *****\n *******\n*********\n *******\n  *****\n   ***\n    *\n`,
+        description: 'Reference Pattern: N = 5 Diamond'
       }
     ]
   }
